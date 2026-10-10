@@ -1,0 +1,6 @@
+{
+  "name": "Disaster Response & Environmental Intelligence Dashboard",
+  "description": "Satellite-driven intelligence dashboard featuring post-flood graph routing, timeline satellite image search with AI tagging, and predictive air quality & toxicity estimation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
