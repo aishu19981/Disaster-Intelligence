@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActiveModule, UserProfile, AlertNotification } from './types';
+import { ActiveModule, UserProfile, AlertNotification, DisasterLocationTime } from './types';
 import { Navbar } from './components/Navbar';
 import { StartPage } from './components/StartPage';
 import { HomePage } from './components/HomePage';
@@ -19,6 +19,18 @@ export default function App() {
     isAnonymous: false,
     role: 'Field Responder',
     isLoggedIn: false,
+  });
+
+  // Shared 4 Mandatory Disaster Parameters (Country, Place, Date, Time) across all three modules
+  const [globalLocationTime, setGlobalLocationTime] = useState<DisasterLocationTime>({
+    country: 'India',
+    place: 'Kerala (Periyar River & Aluva Delta)',
+    date: '2018-08-16',
+    time: '09:30',
+    coordinates: [10.0261, 76.3125],
+    presetId: 'kerala',
+    isPast: true,
+    eventTitle: 'Kerala 2018 Mega Dam Overflow',
   });
 
   // Notifications Queue
@@ -80,15 +92,26 @@ export default function App() {
         )}
 
         {activeModule === 'route-mapper' && (
-          <RouteMapper onPushNotification={handlePushNotification} />
+          <RouteMapper
+            onPushNotification={handlePushNotification}
+            locationTime={globalLocationTime}
+            onLocationTimeChange={setGlobalLocationTime}
+          />
         )}
 
         {activeModule === 'image-search' && (
-          <ImageSearch />
+          <ImageSearch
+            locationTime={globalLocationTime}
+            onLocationTimeChange={setGlobalLocationTime}
+          />
         )}
 
         {activeModule === 'air-estimator' && (
-          <AirEstimator onPushNotification={handlePushNotification} />
+          <AirEstimator
+            onPushNotification={handlePushNotification}
+            locationTime={globalLocationTime}
+            onLocationTimeChange={setGlobalLocationTime}
+          />
         )}
       </main>
 

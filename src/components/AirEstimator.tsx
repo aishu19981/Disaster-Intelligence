@@ -25,9 +25,13 @@ import {
   Satellite
 } from 'lucide-react';
 import L from 'leaflet';
+import { DisasterLocationTimeSelector } from './DisasterLocationTimeSelector';
+import { DisasterLocationTime } from '../types';
 
 interface AirEstimatorProps {
   onPushNotification: (notification: Omit<AlertNotification, 'id' | 'timestamp'>) => void;
+  locationTime?: DisasterLocationTime;
+  onLocationTimeChange?: (data: DisasterLocationTime) => void;
 }
 
 // WHO 24-Hour Safety Guidelines (in µg/m³)
@@ -40,7 +44,11 @@ const WHO_GUIDELINES = {
   o3: 100,
 };
 
-export const AirEstimator: React.FC<AirEstimatorProps> = ({ onPushNotification }) => {
+export const AirEstimator: React.FC<AirEstimatorProps> = ({ 
+  onPushNotification,
+  locationTime,
+  onLocationTimeChange
+}) => {
   // Default to Mach (Bolan, Balochistan) as requested!
   const [selectedLocation, setSelectedLocation] = useState<AirLocationPreset>(AIR_LOCATION_PRESETS[0]);
   const [viewMode, setViewMode] = useState<'copernicus' | 'zoomearth'>('copernicus');
@@ -233,6 +241,67 @@ export const AirEstimator: React.FC<AirEstimatorProps> = ({ onPushNotification }
     } catch (e) {
       console.error(e);
     }
+  };
+
+  // Synchronize when incoming locationTime prop updates
+  useEffect(() => {
+    if (locationTime) {
+      const match = AIR_LOCATION_PRESETS.find(p => 
+        (locationTime.presetId && p.name.toLowerCase().includes(locationTime.presetId.toLowerCase())) ||
+        p.name.toLowerCase().includes(locationTime.place.toLowerCase().split('(')[0].trim().toLowerCase()) ||
+        locationTime.place.toLowerCase().includes(p.name.toLowerCase().split('(')[0].trim().toLowerCase())
+      );
+      if (match) {
+        setSelectedLocation(match);
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.setView([match.lat, match.lng], 10);
+        }
+      } else if (locationTime.coordinates) {
+        setSelectedLocation({
+          name: locationTime.place,
+          country: locationTime.country,
+          lat: locationTime.coordinates[0],
+          lng: locationTime.coordinates[1],
+          defaultAqi: 75,
+          dominantPollutant: 'Particulates (PM2.5 / PM10)',
+        });
+        if (mapInstanceRef.current) {
+          mapInstanceRef.current.setView(locationTime.coordinates, 10);
+        }
+      }
+      if (locationTime.date && locationTime.time) {
+        handleDateSelect(`${locationTime.date}T${locationTime.time}`, locationTime.eventTitle || 'Selected Event');
+      }
+    }
+  }, [locationTime]);
+
+  const handleLocationTimeApplied = (data: DisasterLocationTime) => {
+    if (onLocationTimeChange) onLocationTimeChange(data);
+    setBasemapStyle('satellite');
+    const match = AIR_LOCATION_PRESETS.find(p => 
+      (data.presetId && p.name.toLowerCase().includes(data.presetId.toLowerCase())) ||
+      p.name.toLowerCase().includes(data.place.toLowerCase().split('(')[0].trim().toLowerCase()) ||
+      data.place.toLowerCase().includes(p.name.toLowerCase().split('(')[0].trim().toLowerCase())
+    );
+    if (match) {
+      setSelectedLocation(match);
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.setView([match.lat, match.lng], 10);
+      }
+    } else {
+      setSelectedLocation({
+        name: data.place,
+        country: data.country,
+        lat: data.coordinates[0],
+        lng: data.coordinates[1],
+        defaultAqi: 72,
+        dominantPollutant: 'PM2.5 & Atmospheric Aerosols',
+      });
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.setView(data.coordinates, 10);
+      }
+    }
+    handleDateSelect(`${data.date}T${data.time}`, data.eventTitle || `${data.place} Observation`);
   };
 
   useEffect(() => {
@@ -466,6 +535,22 @@ export const AirEstimator: React.FC<AirEstimatorProps> = ({ onPushNotification }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* 4 Mandatory Data Fields: 1. Country, 2. Place, 3. Date, 4. Time */}
+      <DisasterLocationTimeSelector
+        currentValue={locationTime || {
+          country: selectedLocation.country || 'India',
+          place: selectedLocation.name,
+          date: selectedDateTime.slice(0, 10),
+          time: selectedDateTime.slice(11, 16) || '12:00',
+          coordinates: [selectedLocation.lat, selectedLocation.lng],
+          presetId: undefined,
+          isPast: timelinePhase === 'past',
+          eventTitle: `${selectedLocation.name} Atmospheric Observation`,
+        }}
+        onApply={handleLocationTimeApplied}
+        title="Module 3: Air Estimator & Toxicity Radar · 4 Mandatory Parameters (Country · Place · Date · Time)"
+      />
+
       {/* Top Banner: Direct Zoom Earth Reference & Mach Satellite Telemetry */}
       <div className="bg-cyan-950/40 border border-cyan-800/80 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-xs font-mono">
         <div className="flex items-center gap-3">
@@ -917,11 +1002,97 @@ export const AirEstimator: React.FC<AirEstimatorProps> = ({ onPushNotification }
         </div>
 
         {viewMode === 'copernicus' ? (
-          <div
-            ref={mapContainerRef}
-            className="w-full h-[480px] z-10 cursor-crosshair"
-            style={{ minHeight: '480px' }}
-          />
+          <div className="relative w-full h-[520px]">
+            <div
+              ref={mapContainerRef}
+              className="w-full h-full z-10 cursor-crosshair"
+              style={{ minHeight: '520px' }}
+            />
+
+            {/* Floating Satellite Atmospheric HUD on Map (Temp, Humid, Quality, Pollution, Toxicity) */}
+            <div className="absolute top-3 left-3 z-20 max-w-sm w-full bg-slate-950/92 backdrop-blur-md border border-cyan-800/80 rounded-xl p-3.5 shadow-2xl space-y-2 pointer-events-auto">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-cyan-400">
+                  <Satellite className="w-3.5 h-3.5" />
+                  <span>SATELLITE ATMOSPHERIC METRICS</span>
+                </div>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">
+                  {selectedLocation.name.split('(')[0]}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                {/* 1. Air Temp */}
+                <div className="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
+                  <div className="text-[10px] text-slate-400 flex items-center gap-1">
+                    <Thermometer className="w-3 h-3 text-rose-400" />
+                    <span>1. AIR TEMP</span>
+                  </div>
+                  <div className="text-base font-bold text-white mt-0.5">
+                    {liveWeather?.temperature ?? currentMetrics?.temperatureC ?? 28}°C
+                  </div>
+                  <div className="text-[10px] text-slate-500">Feels {liveWeather?.apparentTemp ?? 29}°C</div>
+                </div>
+
+                {/* 2. Humidity */}
+                <div className="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
+                  <div className="text-[10px] text-slate-400 flex items-center gap-1">
+                    <Droplets className="w-3 h-3 text-blue-400" />
+                    <span>2. HUMIDITY</span>
+                  </div>
+                  <div className="text-base font-bold text-blue-400 mt-0.5">
+                    {liveWeather?.humidity ?? currentMetrics?.humidityPct ?? 38}%
+                  </div>
+                  <div className="text-[10px] text-slate-500">Relative moisture</div>
+                </div>
+
+                {/* 3. Air Quality */}
+                <div className="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
+                  <div className="text-[10px] text-slate-400 flex items-center gap-1">
+                    <Activity className="w-3 h-3 text-emerald-400" />
+                    <span>3. AIR QUALITY</span>
+                  </div>
+                  <div className="text-base font-bold text-emerald-400 mt-0.5">
+                    AQI {currentMetrics?.usAqi ?? selectedLocation.defaultAqi}
+                  </div>
+                  <div className="text-[10px] text-slate-500">EU: {currentMetrics?.europeanAqi ?? 45}</div>
+                </div>
+
+                {/* 4. Pollution */}
+                <div className="bg-slate-900/90 p-2 rounded-lg border border-slate-800">
+                  <div className="text-[10px] text-slate-400 flex items-center gap-1">
+                    <Wind className="w-3 h-3 text-amber-400" />
+                    <span>4. POLLUTION</span>
+                  </div>
+                  <div className="text-base font-bold text-amber-400 mt-0.5 truncate">
+                    PM2.5: {currentMetrics?.pm25 ?? 22}
+                  </div>
+                  <div className="text-[10px] text-slate-500">PM10: {currentMetrics?.pm10 ?? 45} µg</div>
+                </div>
+              </div>
+
+              {/* 5. Toxicity */}
+              <div className="bg-slate-900/90 p-2 rounded-lg border border-slate-800 text-xs font-mono">
+                <div className="flex items-center justify-between text-[10px]">
+                  <span className="text-slate-400 flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-purple-400" />
+                    <span>5. CHEMICAL TOXICITY</span>
+                  </span>
+                  <span className={`px-1.5 py-0.2 rounded font-bold ${
+                    (currentMetrics?.no2 ?? 0) > 25 ? 'bg-rose-950 text-rose-300' : 'bg-emerald-950 text-emerald-300'
+                  }`}>
+                    {(currentMetrics?.no2 ?? 0) > 25 ? 'ELEVATED' : 'SAFE'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-4 gap-1 text-[10px] text-slate-300 mt-1">
+                  <div>NO₂: <span className="text-cyan-300">{currentMetrics?.no2 ?? 18}</span></div>
+                  <div>CO: <span className="text-cyan-300">{currentMetrics?.co ?? 420}</span></div>
+                  <div>SO₂: <span className="text-cyan-300">{currentMetrics?.so2 ?? 12}</span></div>
+                  <div>O₃: <span className="text-cyan-300">{currentMetrics?.o3 ?? 68}</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="relative w-full h-[500px] bg-slate-950">
             <iframe

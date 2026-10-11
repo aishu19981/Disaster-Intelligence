@@ -571,7 +571,7 @@ export const SATELLITE_IMAGE_ARCHIVE: SatelliteImageRecord[] = [
       presentDate: 'Present Live Satellite Stream (Sentinel-1 SAR)',
       presentWaterCoveragePct: 18.2,
       presentDescription: 'Live radar observation confirms water receding into Arabian Sea backwaters; Kakkanad corridor clear.',
-    }
+    },
     impactData: {
       "structuresDamaged": 28450,
       "bridgesImpacted": 18,
@@ -627,7 +627,7 @@ export const SATELLITE_IMAGE_ARCHIVE: SatelliteImageRecord[] = [
       presentDate: 'Present Live Satellite Stream (Zoom Earth & Sentinel)',
       presentWaterCoveragePct: 24.2,
       presentDescription: 'Braided river sandbars emerging; Khanapara elevated expressway fully passable.',
-    }
+    },
     impactData: {
       "structuresDamaged": 42100,
       "bridgesImpacted": 32,
@@ -683,7 +683,7 @@ export const SATELLITE_IMAGE_ARCHIVE: SatelliteImageRecord[] = [
       presentDate: 'Present Live Satellite Stream (Sentinel-2)',
       presentWaterCoveragePct: 18.0,
       presentDescription: 'Re-stabilized hillside runoff channels and military Bailey bridge traffic operational.',
-    }
+    },
     impactData: {
       "structuresDamaged": 1250,
       "bridgesImpacted": 4,
@@ -739,7 +739,7 @@ export const SATELLITE_IMAGE_ARCHIVE: SatelliteImageRecord[] = [
       presentDate: 'Present Live Satellite Stream (MODIS & Sentinel)',
       presentWaterCoveragePct: 18.5,
       presentDescription: 'Receded water channels and dry elevated highway network in Patna corridor.',
-    }
+    },
     impactData: {
       "structuresDamaged": 58200,
       "bridgesImpacted": 24,
@@ -795,7 +795,7 @@ export const SATELLITE_IMAGE_ARCHIVE: SatelliteImageRecord[] = [
       presentDate: 'Present Live Satellite Stream (Sentinel-1 SAR)',
       presentWaterCoveragePct: 12.0,
       presentDescription: 'Normal urban drainage active; all major bridges clear.',
-    }
+    },
     impactData: {
       "structuresDamaged": 36000,
       "bridgesImpacted": 8,
@@ -851,7 +851,7 @@ export const SATELLITE_IMAGE_ARCHIVE: SatelliteImageRecord[] = [
       presentDate: 'Present Live Satellite Stream (Sentinel-1 SAR)',
       presentWaterCoveragePct: 14.0,
       presentDescription: 'Pumps active, Western Express Highway viaduct fully passable.',
-    }
+    },
     impactData: {
       "structuresDamaged": 65000,
       "bridgesImpacted": 12,
@@ -907,7 +907,7 @@ export const SATELLITE_IMAGE_ARCHIVE: SatelliteImageRecord[] = [
       presentDate: 'Present Live Satellite Stream (Zoom Earth & SAR)',
       presentWaterCoveragePct: 16.5,
       presentDescription: 'Dry boulder riverbed with newly reconstructed causeway open for emergency convoy.',
-    }
+    },
     impactData: {
       "structuresDamaged": 8500,
       "bridgesImpacted": 6,
@@ -963,7 +963,7 @@ export const SATELLITE_IMAGE_ARCHIVE: SatelliteImageRecord[] = [
       presentDate: 'Present Live Satellite Stream (Sentinel-1 SAR)',
       presentWaterCoveragePct: 22.8,
       presentDescription: 'Clear elevated ridge highways and stabilized retention basins.',
-    }
+    },
     impactData: {
       "structuresDamaged": 204000,
       "bridgesImpacted": 15,
@@ -1019,7 +1019,7 @@ export const SATELLITE_IMAGE_ARCHIVE: SatelliteImageRecord[] = [
       presentDate: 'Present Live Satellite Stream (Copernicus EMS)',
       presentWaterCoveragePct: 12.0,
       presentDescription: 'Reconstructed causeways open; mud silt cleared on major arterials.',
-    }
+    },
     impactData: {
       "structuresDamaged": 35000,
       "bridgesImpacted": 40,
@@ -1075,7 +1075,7 @@ export const SATELLITE_IMAGE_ARCHIVE: SatelliteImageRecord[] = [
       presentDate: 'Present Live Satellite Stream (NASA MODIS)',
       presentWaterCoveragePct: 15.0,
       presentDescription: 'Normal navigation pool levels restored across all locks.',
-    }
+    },
     impactData: {
       "structuresDamaged": 18000,
       "bridgesImpacted": 62,

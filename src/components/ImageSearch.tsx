@@ -396,6 +396,22 @@ export const ImageSearch: React.FC<ImageSearchProps> = ({
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* 4 Mandatory Data Fields: 1. Country, 2. Place, 3. Date, 4. Time */}
+      <DisasterLocationTimeSelector
+        currentValue={locationTime || {
+          country: selectedRecord.country || 'India',
+          place: selectedRecord.locationName,
+          date: selectedRecord.timestamp.slice(0, 10),
+          time: selectedRecord.timestamp.slice(11, 16) || '06:30',
+          coordinates: selectedRecord.coordinates || [10.0261, 76.3125],
+          presetId: selectedRecord.id,
+          isPast: true,
+          eventTitle: selectedRecord.tags[0] || selectedRecord.locationName,
+        }}
+        onApply={handleLocationTimeApplied}
+        title="Module 2: Satellite Search & Damage Forensics · 4 Mandatory Parameters (Country · Place · Date · Time)"
+      />
+
       {/* Header & Search Controls */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -927,6 +943,179 @@ export const ImageSearch: React.FC<ImageSearchProps> = ({
           )}
         </div>
       </div>
+
+      {/* Comprehensive Flood Damage Telemetry & Ground/Aerial Damage Images */}
+      {selectedRecord.impactData && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-mono text-rose-400 font-bold">
+                <AlertOctagon className="w-4 h-4" />
+                <span>HISTORICAL FLOOD DAMAGE ASSESSMENT & INFRASTRUCTURE IMPACTS</span>
+              </div>
+              <h2 className="text-lg font-bold text-white mt-1">
+                Catastrophic Inundation & Ground Impact Analysis · {selectedRecord.locationName}
+              </h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-950/80 text-rose-300 border border-rose-800">
+                LOSS: ${selectedRecord.impactData.economicLossUsdMillions}M USD
+              </span>
+              <span className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                CASUALTIES: {selectedRecord.impactData.fatalitiesRecorded ?? 0}
+              </span>
+            </div>
+          </div>
+
+          {/* 4 Stat Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="p-4 bg-slate-950/80 rounded-xl border border-slate-800">
+              <div className="flex items-center gap-2 text-slate-400 text-xs font-mono">
+                <Home className="w-4 h-4 text-rose-400" />
+                <span>STRUCTURES DAMAGED</span>
+              </div>
+              <div className="text-2xl font-bold text-white font-mono mt-1">
+                {selectedRecord.impactData.structuresDamaged.toLocaleString()}
+              </div>
+              <div className="text-[11px] text-slate-500 mt-0.5">Homes & public facilities</div>
+            </div>
+
+            <div className="p-4 bg-slate-950/80 rounded-xl border border-slate-800">
+              <div className="flex items-center gap-2 text-slate-400 text-xs font-mono">
+                <Building2 className="w-4 h-4 text-amber-400" />
+                <span>BRIDGES & CULVERTS</span>
+              </div>
+              <div className="text-2xl font-bold text-amber-400 font-mono mt-1">
+                {selectedRecord.impactData.bridgesImpacted} Severed
+              </div>
+              <div className="text-[11px] text-slate-500 mt-0.5">Scoured or washed out</div>
+            </div>
+
+            <div className="p-4 bg-slate-950/80 rounded-xl border border-slate-800">
+              <div className="flex items-center gap-2 text-slate-400 text-xs font-mono">
+                <Wheat className="w-4 h-4 text-emerald-400" />
+                <span>CROPLAND INUNDATED</span>
+              </div>
+              <div className="text-2xl font-bold text-emerald-400 font-mono mt-1">
+                {selectedRecord.impactData.cropHectaresInundated.toLocaleString()} Ha
+              </div>
+              <div className="text-[11px] text-slate-500 mt-0.5">Agricultural submerged</div>
+            </div>
+
+            <div className="p-4 bg-slate-950/80 rounded-xl border border-slate-800">
+              <div className="flex items-center gap-2 text-slate-400 text-xs font-mono">
+                <Users className="w-4 h-4 text-cyan-400" />
+                <span>POPULATION DISPLACED</span>
+              </div>
+              <div className="text-2xl font-bold text-cyan-400 font-mono mt-1">
+                {selectedRecord.impactData.displacedPopulation.toLocaleString()}
+              </div>
+              <div className="text-[11px] text-slate-500 mt-0.5">Evacuated to shelters</div>
+            </div>
+          </div>
+
+          {/* Key Infrastructure Failures list */}
+          {selectedRecord.impactData.keyDamagedInfrastructure && selectedRecord.impactData.keyDamagedInfrastructure.length > 0 && (
+            <div className="p-4 bg-slate-950/90 rounded-xl border border-rose-950/60 space-y-2">
+              <div className="text-xs font-mono text-rose-400 font-bold flex items-center gap-2">
+                <AlertOctagon className="w-3.5 h-3.5" />
+                <span>KEY DAMAGED INFRASTRUCTURE & CRITICAL ARTERIAL BREACHES:</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                {selectedRecord.impactData.keyDamagedInfrastructure.map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-2 text-slate-300 bg-slate-900/80 p-2.5 rounded-lg border border-slate-800">
+                    <span className="w-5 h-5 rounded bg-rose-950 text-rose-400 border border-rose-800 text-[10px] font-mono font-bold flex items-center justify-center shrink-0">
+                      {idx + 1}
+                    </span>
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Damage Images Gallery: Aerial, Ground, and Satellite Radar */}
+          {selectedRecord.impactData.damageImages && selectedRecord.impactData.damageImages.length > 0 && (
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-mono text-cyan-400 font-bold flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4" />
+                  <span>SATELLITE & GROUND DAMAGE IMAGERY ARCHIVE:</span>
+                </div>
+                <span className="text-[11px] text-slate-400">Click any photo to inspect high-resolution reconnaissance</span>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {selectedRecord.impactData.damageImages.map((img, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => setPreviewDamageImage(img)}
+                    className="group relative bg-slate-950 rounded-xl border border-slate-800 overflow-hidden cursor-pointer hover:border-cyan-500/60 transition-all shadow-md"
+                  >
+                    <div className="relative h-48 w-full overflow-hidden bg-slate-900">
+                      <img
+                        src={img.url}
+                        alt={img.caption}
+                        referrerPolicy="no-referrer"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider bg-slate-950/80 text-cyan-300 border border-slate-700 backdrop-blur-sm">
+                        {img.type} Observation
+                      </div>
+                      <div className="absolute inset-0 bg-slate-950/0 group-hover:bg-slate-950/30 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <div className="p-2 rounded-full bg-cyan-500 text-slate-950 shadow-lg">
+                          <Maximize2 className="w-4 h-4" />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <p className="text-xs text-slate-300 line-clamp-2 font-sans">{img.caption}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Modal Preview for Full Size Damage Image */}
+      {previewDamageImage && (
+        <div
+          className="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4"
+          onClick={() => setPreviewDamageImage(null)}
+        >
+          <div
+            className="relative max-w-4xl w-full bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 bg-slate-950/90 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-mono text-cyan-400">
+                <span className="uppercase font-bold">{previewDamageImage.type} HIGH-RESOLUTION RECONNAISSANCE</span>
+                <span className="text-slate-500">·</span>
+                <span className="text-slate-300">{selectedRecord.locationName}</span>
+              </div>
+              <button
+                onClick={() => setPreviewDamageImage(null)}
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="relative max-h-[70vh] bg-black flex items-center justify-center overflow-hidden">
+              <img
+                src={previewDamageImage.url}
+                alt={previewDamageImage.caption}
+                referrerPolicy="no-referrer"
+                className="max-h-[70vh] w-auto object-contain"
+              />
+            </div>
+            <div className="p-4 bg-slate-950 border-t border-slate-800 text-xs text-slate-200">
+              <p>{previewDamageImage.caption}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

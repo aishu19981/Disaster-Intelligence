@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Globe2, MapPin, Calendar, Clock, Search, Satellite, AlertTriangle, CheckCircle2, History } from 'lucide-react';
 import { DisasterLocationTime } from '../types';
 
@@ -140,6 +140,16 @@ export const DisasterLocationTimeSelector: React.FC<Props> = ({
   const now = new Date();
   const selectedDateObj = new Date(`${date}T${time || '00:00'}:00`);
   const isPast = selectedDateObj < now;
+
+  // Sync internal state when currentValue prop changes
+  useEffect(() => {
+    if (currentValue) {
+      if (currentValue.country) setCountry(currentValue.country);
+      if (currentValue.place) setPlace(currentValue.place);
+      if (currentValue.date) setDate(currentValue.date);
+      if (currentValue.time) setTime(currentValue.time);
+    }
+  }, [currentValue.country, currentValue.place, currentValue.date, currentValue.time]);
 
   // Filter presets by selected country
   const filteredPresets = FAMOUS_DISASTER_PRESETS.filter(

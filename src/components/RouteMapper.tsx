@@ -1148,7 +1148,7 @@ export const RouteMapper: React.FC<RouteMapperProps> = ({
                     </div>
                   </div>
                   <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-900/60 text-rose-300 border border-rose-800">
-                    STATUS: DANGER (>50cm)
+                    STATUS: DANGER (&gt;50cm)
                   </span>
                 </div>
 
